@@ -1,0 +1,28 @@
+# Standards: 1.2
+---
+- name: Download repo key
+  shell:
+    cmd: "curl -sSL https://packages.bluemail.me/keys/bluemail.asc | gpg --dearmor --output {{ bluemail_keyring }}"
+    creates: "{{ bluemail_keyring }}"
+  tags:
+    - bluemail
+
+- name: Add apt repository
+  apt_repository:
+    repo: "deb [signed-by={{ bluemail_keyring }}] https://packages.bluemail.me/repos/debian ./"
+    filename: bluemail
+    update_cache: True
+    state: present
+  tags:
+    - bluemail
+
+- name: Install required packages
+  loop:
+    - bluemail
+  package:
+    name: "{{ item }}"
+    state: present
+  tags:
+    - bluemail
+
+...
